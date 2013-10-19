@@ -46,8 +46,8 @@ var lc3_term = (function() {
                           if (err) console.log(err);
 
                           beginPos = b(fd.substring(0, 15));
-                          fd = fd.substring(16, fd.length);
-                          var lines = fd.split("\n");  
+                          fd = fd.substring(17, fd.length);
+                          var lines = fd.split("\n");
                           console.log(lines);
 
                       });
@@ -108,3 +108,5 @@ var registers = (function() {
 }());
 
 lc3_term.go("INPUT");
+console.log("going");
+console.log(memory.get(x("3001")));
