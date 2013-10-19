@@ -2,10 +2,11 @@ fsm = (function() {
     
     return {
         go: function() {
-            var running = true;
-            while (running) {
+                var running = true;
                 
-            }
+                while (running) {
+                    
+                }
         }
     }
 }());

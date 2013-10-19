@@ -1,1 +1,1 @@
-fsm.go();
+lc3_term.go("INPUT");
