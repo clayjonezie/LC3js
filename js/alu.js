@@ -18,4 +18,5 @@ var alu = (function() {
         var output = [];
 
     }
+
 }());

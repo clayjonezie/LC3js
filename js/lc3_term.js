@@ -39,6 +39,8 @@ var lc3_term = (function() {
                               memory.set(i+add, memoryInput[i]);
                           }
 
+                          fsm.start();
+                              
 
                           memory.print();
                       });
