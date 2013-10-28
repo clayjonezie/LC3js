@@ -21,7 +21,6 @@ var alu = (function() {
 }());
 
 
-
 fsm = (function() {
     
     return {
@@ -42,27 +41,74 @@ var lc3_term = (function() {
 
     return {
         go: function(filename) {
-                      fs.readFile(filename, 'utf8', function(err, fd) {
+                      fs.readFile(filename, 'utf8', function(err, fileData) {
                           if (err) console.log(err);
 
-                          beginPos = b(fd.substring(0, 15));
-                          fd = fd.substring(17, fd.length);
-                          var lines = fd.split("\n");
-                          console.log(lines);
+                          // truncate first 16 bits for begin address
+                          var beginPosDecInt = b(fileData.substring(0, 16));
 
+                          // rid those bits
+                          var lc3_data = fileData.substring(17, fileData.length);
+                          var memoryInput = lc3_data.split("\n");
+
+                          // remove empty lines at the end.
+                          // this may not be clear -->
+                          //   we have some inputs that are empty at the end of 
+                          //   the array. if there is one at the end 
+                          //   (memoryInput.length - 1), then we kill it by reducing 
+                          //   length. then the wile will rerun if there is one at
+                          //   the NEW memoryInput.length, being before the previus ''.
+                          while(memoryInput[memoryInput.length - 1] === '') {
+                              memoryInput.length--;
+                          }
+
+                          console.log(memoryInput);
+                         
+                          // load input into memory
+
+                          var add = beginPosDecInt;
+                          // i will traverse [0, length of input] 
+                          // but we will add the offset to it to put
+                          // it at the right position in memory
+                          for (var i = 0; i < memoryInput.length; i++) {
+                              console.log("setting into memory at " + i+add + " with " +
+                                      memoryInput[i]);
+                              memory.set(i+add, memoryInput[i]);
+                          }
+
+
+                          memory.print();
                       });
                   }
-    }
+    };
 }());
 
 // parses a hexidecimal value into an integer
 function x(hex) {
-    return parseInt(hex, 16);
+    var pInt = parseInt(hex, 16);
+    console.log("parsing hex: " + hex + " into " + pInt);
+    return pInt;
 }
 
 // parses a binary value into an integer
 function b(binary) {
-    return parseInt(binary, 2);
+    var pInt = parseInt(binary, 2);
+    console.log("parsing bin: " + binary + " into " + pInt);
+    return pInt;
+}
+
+// turns a decimal integer into a string in binary
+function dBin(decimal) {
+    var dBin = decimal.toString(2);
+    console.log("parsing dec: " + decimal + " into " + dBin);
+    return dBin;
+}
+
+// turns a decimal integer into a string in hex
+function dHex(decimal) {
+    var dHex = decimal.toString(16);
+    console.log("parsing dec: " + decimal + " into " + dHex);
+    return dHex;
 }
 
 var memory = (function () {
@@ -80,9 +126,15 @@ var memory = (function () {
         get: function(address) {
                  return mem[x(address)];
              },
-        set: function(address, value) {
-                 mem[x(address)] = value;
-            }
+        set: function(intAddress, value) {
+                 mem[intAddress] = value;
+            },
+        print: function() {
+                 mem.forEach(function(elem, index) {
+                    console.log(dHex(index) + ": " + elem);
+                 });
+               },
+
     };
 }());
 

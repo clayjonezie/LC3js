@@ -13,8 +13,14 @@ var memory = (function () {
         get: function(address) {
                  return mem[x(address)];
              },
-        set: function(address, value) {
-                 mem[x(address)] = value;
-            }
+        set: function(intAddress, value) {
+                 mem[intAddress] = value;
+            },
+        print: function() {
+                 mem.forEach(function(elem, index) {
+                    console.log(dHex(index) + ": " + elem);
+                 });
+               },
+
     };
 }());

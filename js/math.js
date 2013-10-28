@@ -1,9 +1,27 @@
 // parses a hexidecimal value into an integer
 function x(hex) {
-    return parseInt(hex, 16);
+    var pInt = parseInt(hex, 16);
+    console.log("parsing hex: " + hex + " into " + pInt);
+    return pInt;
 }
 
 // parses a binary value into an integer
 function b(binary) {
-    return parseInt(binary, 2);
+    var pInt = parseInt(binary, 2);
+    console.log("parsing bin: " + binary + " into " + pInt);
+    return pInt;
+}
+
+// turns a decimal integer into a string in binary
+function dBin(decimal) {
+    var dBin = decimal.toString(2);
+    console.log("parsing dec: " + decimal + " into " + dBin);
+    return dBin;
+}
+
+// turns a decimal integer into a string in hex
+function dHex(decimal) {
+    var dHex = decimal.toString(16);
+    console.log("parsing dec: " + decimal + " into " + dHex);
+    return dHex;
 }
