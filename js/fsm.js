@@ -5,22 +5,20 @@ fsm = (function() {
     }
     
     return {
-        go: function() {
-                var running = true;
-                
-                while (running) {
-                    
-                }
+        execute_instruction: function() {
+             
         },
 
         start: function(beginAddress) {
             var running = true;
             while(running) {
-                var pc = registers.pc();
-                console.log("pc was " + pc);
-                var ir = registers.pc(memory.get(pc));
-                console.log("ir held " + ir);
-                exec(beginAddress);
+                // fill the IR with the location at the PC
+                console.log("setting ir to " + memory.get(memory.get("pc")));
+                memory.set("ir", memory.get(memory.get("pc")));
+                // incrememnt the PC
+                registers.pc(registers.pc() + 1);
+
+                exec(memory.get("ir"));
                 running = false;
             }
         },

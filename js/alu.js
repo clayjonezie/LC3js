@@ -1,3 +1,7 @@
+/* The arithmatic and logic unit
+ * provides various functions for maths
+ */
+
 var alu = (function() {
     var add = function(a, b) {
         a.forEach(function(elem, i, arr) {

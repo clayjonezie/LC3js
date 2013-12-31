@@ -1,3 +1,7 @@
+/* The arithmatic and logic unit
+ * provides various functions for maths
+ */
+
 var alu = (function() {
     var add = function(a, b) {
         a.forEach(function(elem, i, arr) {
@@ -29,22 +33,20 @@ fsm = (function() {
     }
     
     return {
-        go: function() {
-                var running = true;
-                
-                while (running) {
-                    
-                }
+        execute_instruction: function() {
+             
         },
 
         start: function(beginAddress) {
             var running = true;
             while(running) {
-                var pc = registers.pc();
-                console.log("pc was " + pc);
-                var ir = registers.pc(memory.get(pc));
-                console.log("ir held " + ir);
-                exec(beginAddress);
+                // fill the IR with the location at the PC
+                console.log("setting ir to " + memory.get(memory.get("pc")));
+                memory.set("ir", memory.get(memory.get("pc")));
+                // incrememnt the PC
+                registers.pc(registers.pc() + 1);
+
+                exec(memory.get("ir"));
                 running = false;
             }
         },
@@ -54,182 +56,123 @@ fsm = (function() {
 }());
 
 
+/* sorry to the OG's on 80 char wide terminals
+ *
+ */
+
 var fs = require("fs");
-
 var lc3_term = (function() {
-
     return {
-        go: function(filename) {
-                      fs.readFile(filename, 'utf8', function(err, fileData) {
-                          if (err) console.log(err);
+        // this will read a file and eventually call the fsm to do things
+        process_file: function(filename) {
+            fs.readFile(filename, 'utf8', function(err, fileData) {
+                if (err) console.log(err);
 
-                          // truncate first 16 bits for begin address
-                          var beginPosDecInt = b(fileData.substring(0, 16));
+                // truncate first 16 bits for begin address
+                var beginPosDecInt = b2d(fileData.substring(0, 16));
 
-                          // rid those bits
-                          var lc3_data = fileData.substring(17, fileData.length);
-                          var memoryInput = lc3_data.split("\n");
+                // rid those bits
+                var lc3_data = fileData.substring(17, fileData.length);
+                var memoryInput = lc3_data.split("\n");
 
-                          // remove empty lines at the end.
-                          // this may not be clear -->
-                          //   we have some inputs that are empty at the end of 
-                          //   the array. if there is one at the end 
-                          //   (memoryInput.length - 1), then we kill it by reducing 
-                          //   length. then the wile will rerun if there is one at
-                          //   the NEW memoryInput.length, being before the previus ''.
-                          while(memoryInput[memoryInput.length - 1] === '') {
-                              memoryInput.length--;
-                          }
+                // remove empty lines at the end.
+                // this may not be clear -->
+                //   we have some inputs that are empty at the end of 
+                //   the array. if there is one at the end 
+                //   (memoryInput.length - 1), then we kill it by reducing 
+                //   length. then the wile will rerun if there is one at
+                //   the NEW memoryInput.length, being before the previus ''.
+                while(memoryInput[memoryInput.length - 1] === '') {
+                    memoryInput.length--;
+                }
 
-                          console.log(memoryInput);
-                         
-                          // load input into memory
+                memory.init(beginPosDecInt, memoryInput);
+               
+                // load input into memory
+                var add = beginPosDecInt;
+                // i will traverse [0, length of input] 
+                // but we will add the offset to it to put
+                // it at the right position in memory
 
-                          var add = beginPosDecInt;
-                          // i will traverse [0, length of input] 
-                          // but we will add the offset to it to put
-                          // it at the right position in memory
-                          for (var i = 0; i < memoryInput.length; i++) {
-                              console.log("setting into memory at " + i+add + " with " +
-                                      memoryInput[i]);
-                              memory.set(i+add, memoryInput[i]);
-                          }
+                // initializes the pc to x3000
+                memory.set("pc", (x2d("3000")));
+//                fsm.start();
 
-                          fsm.start();
-                              
-
-                          memory.print();
-                      });
-                  }
+                memory.print();
+            });
+      }
     };
 }());
 
 var log = false;
 
 // parses a hexidecimal value into an integer
-function x(hex) {
+function x2d(hex) {
     var pInt = parseInt(hex, 16);
     if (log) console.log("parsing hex: " + hex + " into " + pInt);
     return pInt;
 }
 
 // parses a binary value into an integer
-function b(binary) {
+function b2d(binary) {
     var pInt = parseInt(binary, 2);
     if (log) console.log("parsing bin: " + binary + " into " + pInt);
     return pInt;
 }
 
 // turns a decimal integer into a string in binary
-function dBin(decimal) {
+function d2b(decimal) {
     var dBin = decimal.toString(2);
     if (log) console.log("parsing dec: " + decimal + " into " + dBin);
     return dBin;
 }
 
 // turns a decimal integer into a string in hex
-function dHex(decimal) {
+function d2h(decimal) {
     var dHex = decimal.toString(16);
     if (log) console.log("parsing dec: " + decimal + " into " + dHex);
     return dHex;
 }
 
-var memory = (function () {
-    var mem = [x("FFFF")];
+/* memory.js
+ *
+ */ var memory = (function () {
+    // mem is our general purpose memory
+    var mem = [x2d("FFFF")];
 
     function inquire(mar, mdr) {
         
     }
     return {
         init: function(beginPosition, values) {
-                  for (var i = beginPosition; i < values.length; i++) {
-                      memory[i + beginPosition] = values[i];
+                  console.log("in init, with " + d2h(beginPosition) + " and ");
+                  console.log(values);
+                  for (var i = 0; i < values.length; i++) {
+                      console.log("setting " + (i + beginPosition));
+                      this.set(i + beginPosition, values[i]);
                   }
               },
+
+        // returns the memory at that integer address
         get: function(address) {
-                 return mem[x(address)];
+                 return mem[address];
              },
+
+        // sets the memory at that integer address
         set: function(intAddress, value) {
+                 console.log("request to set " + intAddress);
                  mem[intAddress] = value;
             },
         print: function() {
                  mem.forEach(function(elem, index) {
-                    console.log(dHex(index) + ": " + elem);
+                    console.log(d2h(index) + ": " + elem);
                  });
                },
 
     };
 }());
 
-var registers = (function() {
-    var r1 = 0;
-    var r2 = 0;
-    var r3 = 0;
-    var r4 = 0;
-    var r5 = 0;
-    var r6 = 0;
-    var r7 = 0;
-    var pc = 0;
-    return {
-        r1: function(value) {
-                if (value !== undefined)
-                    return (r1 = value);
-                else
-                    return r1;
-            },
-        r2: function(value) {
-                if (value !== undefined)
-                    return r2 = value;
-                else
-                    return r2;
-            },
-        r3: function(value) {
-                if (value !== undefined)
-                    return r3 = value;
-                else
-                    return r3;
-            },
-        r4: function(value) {
-                if (value !== undefined)
-                    return r4 = value;
-                else
-                    return r4;
-            },
-        r5: function(value) {
-                if (value !== undefined)
-                    return r5 = value;
-                else
-                    return r5;
-            },
-        r6: function(value) {
-                if (value !== undefined)
-                    return r6 = value;
-                else
-                    return r6;
-            },
-        r7: function(value) {
-                if (value !== undefined)
-                    return r7 = value;
-                else
-                    return r7;
-            },
-        pc: function(value) {
-                if (value !== undefined)
-                    return pc = value;
-                else
-                    return pc;
-            },
-        ir: function(value) {
-                if (value !== undefined)
-                    return ir = value;
-                else
-                    return ir;
-            }
-    };
-}());
-
-
 // kicks off the whole proces with this input file...
 // this is appended to lc3.js during build. 
-// then lc3.js is node'd
-lc3_term.go("INPUT");
+// then lc3.js is ran by node
+lc3_term.process_file("INPUT");

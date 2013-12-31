@@ -1,24 +1,33 @@
+/* memory.js
+ *
+ */ 
 var memory = (function () {
-    var mem = [x("FFFF")];
+    // mem is our general purpose memory
+    var mem = [x2d("FFFF")];
 
-    function inquire(mar, mdr) {
-        
-    }
     return {
         init: function(beginPosition, values) {
-                  for (var i = beginPosition; i < values.length; i++) {
-                      memory[i + beginPosition] = values[i];
+                  console.log("in init, with " + d2h(beginPosition) + " and ");
+                  console.log(values);
+                  for (var i = 0; i < values.length; i++) {
+                      console.log("setting " + (i + beginPosition));
+                      this.set(i + beginPosition, values[i]);
                   }
               },
+
+        // returns the memory at that integer address
         get: function(address) {
-                 return mem[x(address)];
+                 return mem[address];
              },
+
+        // sets the memory at that integer address
         set: function(intAddress, value) {
+                 console.log("request to set " + intAddress);
                  mem[intAddress] = value;
             },
         print: function() {
                  mem.forEach(function(elem, index) {
-                    console.log(dHex(index) + ": " + elem);
+                    console.log(d2h(index) + ": " + elem);
                  });
                },
 
